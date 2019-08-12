@@ -20,12 +20,20 @@
       {{div['script']|safe}}
     {%endfor%}
     <div class="container">
-      <form action="/change_date" method="post">
+      <form action="/viz" method="post">
         <input type="hidden" name="date" value="{{ date }}"/>
-        <input type="hidden" name="collection" value="{{ collection}}"/>
         <div class="row">
           <div class="col-sm text-center">
             <input type="submit" class="btn btn-primary" id="previous" value="previous" name="change">
+          </div>
+          <div class="col-sm text-center">
+            <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="inlineFormCustomSelect" name="collection">
+                <option selected value="{{ collection }}" name="collection">{{collection}}</option>
+              {% for collection in collections %}
+                <option value={{collection}} name="collection">{{collection}}</option>
+              {% endfor %}
+            </select>
+            <button type=submit class="btn btn-primary"> Go to collection </button>
           </div>
           <div class="col-sm text-center">
             <input type="submit" class="btn btn-primary" id="next" value="next" name="change">

@@ -69,10 +69,3 @@ def create_hover_tool(y_key):
       </div>
     """
     return HoverTool(tooltips=hover_html)
-
-def make_data(vals, x_key, y_key): 
-    """ formats data into a dictionary with given keys """
-    data_x = list(vals.keys())
-    data_y = list(vals.values())
-    data = {x_key: data_x, y_key: data_y}
-    return data

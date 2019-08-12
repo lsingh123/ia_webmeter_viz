@@ -9,12 +9,11 @@ Created on Fri Aug  9 10:23:28 2019
 from flask import Flask, render_template, request
 import random
 import requests
-from chart_maker import create_bar_chart, make_data, create_hover_tool
+from chart_maker import create_bar_chart, create_hover_tool
 from bokeh.layouts import row
 from bokeh.embed import components
 from colls import colls
-from bokeh.models.widgets import Button
-from functools import partial
+from utils import make_data
 
 app = Flask(__name__)
 DATE = '2019-08-08'
@@ -24,7 +23,6 @@ session=requests.Session()
 @app.route("/")
 def index():
     return render_template("index.html", collections=colls)
-    
 
 @app.route("/<int:bars_count>/")
 def chart(bars_count):
@@ -44,7 +42,7 @@ def chart(bars_count):
     return render_template("chart.html", bars_count=bars_count,
                            the_div=div, the_script=script)
 
-@app.route('/change_date', methods=["POST"])
+'''@app.route('/change_date', methods=["POST"])
 def date_handler():
     date_pieces = request.form['date'].split('-')
     if request.form['change'] == "next":
@@ -53,7 +51,7 @@ def date_handler():
         date_pieces[2] = str(int(date_pieces[2]) - 1)
     date_pieces = ["0" + piece if len(piece) == 1 else piece for piece in date_pieces]
     new_d = date_pieces[0] + "-" + date_pieces[1] + "-" + date_pieces[2]
-    return make_collection_viz(request.form['collection'], new_d)
+    return make_collection_viz(request.form['collection'], new_d)'''
     
 @app.route('/<collection>/<date>')
 def make_collection_viz(collection, date):
@@ -63,11 +61,15 @@ def make_collection_viz(collection, date):
         
     try:
         newscrawl = json['collection'][collection]
-
+    except KeyError:
+        error = "ERROR: {coll} NOT FOUND ".format(coll=collection)
+        return render_template("error.html", error=error)
+    
+    try:
         domains = make_data(newscrawl['domains'], "domain", "size")
         mimetypes = make_data(newscrawl['mimetypes'], "mimetype", "size")
         statuscodes = make_data(newscrawl['statuscodes'], "statuscode", "size")
-        hovers = [create_hover_tool('size') for i in range(3)]
+        hovers = [create_hover_tool('size_human') for i in range(3)]
         
         plot1 = create_bar_chart(domains, date+" Domains for Collection {coll}".format(coll=collection), 
                                 "domain", "size", "Domain", "Captures", hover_tool=hovers[0])
@@ -79,15 +81,27 @@ def make_collection_viz(collection, date):
         
         divs = [{"div":div, "script":script} for script,div in plots]
         
-        return render_template("viz.html", collection=collection, divs=divs, date=date)
+        return render_template("viz.html", collection=collection, divs=divs, date=date, collections=colls)
     except:
-        error = "ERROR IN GETTING {coll}".format(coll=collection)
+        error = "ERROR IN GETTING DATA FOR {coll}".format(coll=collection)
         return render_template("error.html", error=error)
 
 @app.route('/viz', methods=['POST'])
 def forward():
     resp = request.form
-    return make_collection_viz(resp['collection'], resp['date'])
+    date_pieces = request.form['date'].split('-')
+    try: 
+        change = request.form['change']
+        if change == "next":
+            date_pieces[2] = str(int(date_pieces[2]) + 1)
+        if change == "previous":
+            date_pieces[2] = str(int(date_pieces[2]) - 1)
+        date_pieces = ["0" + piece if len(piece) == 1 else piece for piece in date_pieces]
+        new_d = date_pieces[0] + "-" + date_pieces[1] + "-" + date_pieces[2]
+        return make_collection_viz(resp['collection'], new_d)
+    except KeyError:
+        return make_collection_viz(resp['collection'], resp['date'])
+    
 
 if __name__ == "__main__":
     app.run(debug=True)
