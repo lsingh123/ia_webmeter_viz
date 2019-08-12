@@ -40,3 +40,4 @@ viz_env/**
 *.pyc
 viz_env/*
 viz_env/
+__pycache__/*
