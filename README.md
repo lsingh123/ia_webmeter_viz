@@ -29,6 +29,7 @@ For a guide to virtual environments: https://docs.python-guide.org/dev/virtualen
 Open port to cluster on app host and reload ferm:
 
 ` $ sudo echo 'saddr $CLUSTER proto tcp dport 5000 ACCEPT;' > /etc/ferm/input/5000
+
 $ sudo systemctl reload ferm `
 
 ## Web app
