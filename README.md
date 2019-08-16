@@ -18,11 +18,20 @@ features can be added.
 The index page allows the user to select a collection and a date. 
 ## Requirements
 
-Please set up a virtual environment with Python > 3.0. Install requirements:
+Please set up a virtual environment with Python > 3.0:
+
+```
+virtualenv viz_env
+
+source viz_env/bin/activate
+```
+
+Install requirements:
 
 `$ pip install -r requirements.txt`
 
 For a guide to virtual environments: https://docs.python-guide.org/dev/virtualenvs/
+
 
 ## API Setup
 
